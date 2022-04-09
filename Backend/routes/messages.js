@@ -31,7 +31,6 @@ router.get("/", auth, (req, res) => {
     fromUser: mapUser(message.fromUserId),
     toUser: mapUser(message.toUserId),
   }));
-
   res.send(resources);
 });
 
