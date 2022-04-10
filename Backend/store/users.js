@@ -40,7 +40,9 @@ const getUsers = () => {
   return users;
 };
 
-const getUserById = (id) => users.find((user) => user.id === id);
+const getUserById = (id) => {
+  return users.find((user) => user.id === id);
+};
 
 const getUserByEmail = (email) => users.find((user) => user.email === email);
 

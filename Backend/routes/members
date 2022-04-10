@@ -11,17 +11,18 @@ const auth = require("../middleware/auth");
 const validateWith = require("../middleware/validation");
 
 const schema = {
-  userId: Joi.string().required(),
   eventId: Joi.string().required(),
 };
 
 router.get("/", auth, (req, res) => {
+  console.log("called");
   const members = eventsStore.getMembers(req.query.eventId);
   res.send(members);
 });
 
-router.post("/", [auth, validateWith(schema)], async (req, res) => {
-  const { userId, eventId } = req.body;
+router.post("/", [auth, validateWith(schema)], (req, res) => {
+  const { eventId } = req.body;
+  const userId = req.user.userId;
 
   const event = eventsStore.getEvent(eventId);
   if (!event) return res.status(400).send({ error: "Invalid eventId." });
@@ -34,7 +35,7 @@ router.post("/", [auth, validateWith(schema)], async (req, res) => {
   const { expoPushToken } = targetUser;
 
   if (Expo.isExpoPushToken(expoPushToken))
-    await sendPushNotification(expoPushToken, response);
+    sendPushNotification(expoPushToken, response);
 
   res.status(201).send();
 });

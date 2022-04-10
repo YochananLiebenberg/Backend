@@ -66,6 +66,7 @@ router.post(
       categoryId: parseInt(req.body.categoryId),
       description: req.body.description,
       members: [],
+      userId: req.body.userId,
     };
     event.images = req.images.map((fileName) => ({ fileName: fileName }));
     if (req.body.location) event.location = JSON.parse(req.body.location);

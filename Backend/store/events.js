@@ -68,6 +68,7 @@ const addEvent = (event) => {
   newEvent["userId"] = event["userId"];
   newEvent["location"] = event["location"];
   newEvent["members"] = event["members"];
+  newEvent["userId"] = event["userId"];
 
   let found = false;
   events.forEach((item) => {
@@ -121,8 +122,9 @@ const updateMember = (userId, eventId) => {
     members_list.push(userId);
     response = "Successfly added to event.";
   }
+  console.log(members_list);
 
-  updateMembersDatabase(members_list);
+  updateMembersDatabase(eventId, members_list);
   return response;
 };
 

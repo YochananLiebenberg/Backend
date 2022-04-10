@@ -20,7 +20,7 @@ router.get("/", auth, (req, res) => {
 
   const mapUser = (userId) => {
     const user = usersStore.getUserById(userId);
-    return { id: user.id, name: user.name };
+    return { id: req.user.userId, name: req.user.name };
   };
 
   const resources = messages.map((message) => ({
@@ -41,6 +41,7 @@ router.post("/", [auth, validateWith(schema)], async (req, res) => {
   if (!event) return res.status(400).send({ error: "Invalid eventId." });
 
   const targetUser = usersStore.getUserById(event.userId);
+
   if (!targetUser) return res.status(400).send({ error: "Invalid userId." });
 
   messagesStore.add({
