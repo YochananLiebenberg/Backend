@@ -15,7 +15,6 @@ const schema = {
 };
 
 router.get("/", auth, (req, res) => {
-  console.log("called");
   const members = eventsStore.getMembers(req.query.eventId);
   res.send(members);
 });

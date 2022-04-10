@@ -6,6 +6,8 @@ const users = require("./routes/users");
 const user = require("./routes/user");
 const auth = require("./routes/auth");
 const members = require("./routes/members");
+const movies = require("./routes/movies");
+const movie = require("./routes/movie");
 const my = require("./routes/my");
 const messages = require("./routes/messages");
 const expoPushTokens = require("./routes/expoPushTokens");
@@ -19,6 +21,8 @@ app.use(express.json());
 app.use(helmet());
 app.use(compression());
 
+app.use("/api/movie", movie);
+app.use("/api/movies", movies);
 app.use("/api/members", members);
 app.use("/api/categories", categories);
 app.use("/api/event", event);
