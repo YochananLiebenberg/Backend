@@ -128,6 +128,32 @@ const updateMember = (userId, eventId) => {
   return response;
 };
 
+const deleteEvent = (eventObject) => {
+  retrieveData();
+  var id = mongoose.Types.ObjectId(eventObject.id);
+  // If eventId is in events - then remove:
+  for (i = 0; i < events.length; i++) {
+    if (events[i].id === eventObject.id) {
+      MongoClient.connect(url, function (err, db) {
+        if (err) throw err;
+        var dbo = db.db("eventsdb");
+        var myquery = { _id: id };
+        dbo.collection("events").deleteOne(myquery, function (err, obj) {
+          if (err) throw err;
+          console.log("1 document deleted");
+          db.close();
+          //events.splice(i, 1);
+          events = events.filter(function (item) {
+            return item.id !== eventObject.id;
+          });
+          console.log(events);
+          return "1 document deleted";
+        });
+      });
+    }
+  }
+};
+
 module.exports = {
   addEvent,
   getEvents,
@@ -135,4 +161,5 @@ module.exports = {
   filterEvents,
   updateMember,
   getMembers,
+  deleteEvent,
 };

@@ -3,6 +3,7 @@ const { add } = require("./messages");
 var MongoClient = require("mongodb").MongoClient;
 var url = "mongodb://localhost:27017/";
 var mongoose = require("mongoose");
+const eventsStore = require("./events");
 
 const retrieveData = () => {
   MongoClient.connect(url, function (err, db) {

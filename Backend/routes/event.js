@@ -12,4 +12,11 @@ router.get("/:id", auth, (req, res) => {
   res.send(resource);
 });
 
+router.post("/", auth, (req, res) => {
+  console.log("Trying to delete event");
+  const { eventObject } = req.body;
+  const response = store.deleteEvent(eventObject);
+  res.send(response);
+});
+
 module.exports = router;
