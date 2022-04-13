@@ -4,6 +4,7 @@ const events = require("./routes/events");
 const event = require("./routes/event");
 const users = require("./routes/users");
 const user = require("./routes/user");
+const group = require("./routes/group");
 const auth = require("./routes/auth");
 const members = require("./routes/members");
 const movies = require("./routes/movies");
@@ -21,6 +22,7 @@ app.use(express.json());
 app.use(helmet());
 app.use(compression());
 
+app.use("/api/group", group);
 app.use("/api/movie", movie);
 app.use("/api/movies", movies);
 app.use("/api/members", members);

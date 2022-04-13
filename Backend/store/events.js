@@ -20,6 +20,22 @@ const updateMembersDatabase = (eventId, members_list) => {
   });
 };
 
+const updateRecommendationsDatabase = (eventId, movies_list) => {
+  var id = mongoose.Types.ObjectId(eventId);
+  MongoClient.connect(url, function (err, db) {
+    if (err) throw err;
+    var dbo = db.db("eventsdb");
+    var myquery = { _id: id };
+
+    var newvalues = { $set: { recommendations: movies_list } };
+    dbo.collection("events").updateOne(myquery, newvalues, function (err, res) {
+      if (err) throw err;
+      console.log("1 document updated");
+      db.close();
+    });
+  });
+};
+
 const retrieveData = () => {
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
@@ -69,6 +85,8 @@ const addEvent = (event) => {
   newEvent["location"] = event["location"];
   newEvent["members"] = event["members"];
   newEvent["userId"] = event["userId"];
+  newEvent["description"] = event["description"];
+  newEvent["recommendations"] = event["recommendations"];
 
   let found = false;
   events.forEach((item) => {
@@ -162,4 +180,5 @@ module.exports = {
   updateMember,
   getMembers,
   deleteEvent,
+  updateRecommendationsDatabase,
 };
