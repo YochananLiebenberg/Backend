@@ -15,64 +15,110 @@ const fetch = require("node-fetch");
 const axios = require("axios");
 const { ConnectionClosedEvent } = require("mongoose/node_modules/mongodb");
 
-router.get("/", auth, (req, res) => {
-  members = eventsStore.getMembers(req.query.id);
+router.get("/", auth, async (req, res) => {
+  //Define the MEMBERS LIST of an event. (this should be an up to date version!)
+  const members = eventsStore.getMembers(req.query.id);
 
-  const groups_movies = [];
+  let final_grouped_movies_sorted = [];
 
-  for (let i = 0; i < members.length; i++) {
-    let usersMovies = usersStore.getMovies(members[i].id);
+  // Call FUNCTION 1 with members as the argument.
+  //const event_rec_movies = await getRecommendations(members);
 
-    // If user had not liked any movies yet:
-    if (usersMovies.length == 0) {
-      usersMovies = [
-        moviesStore.getMovieByTitle("Inception"),
-        moviesStore.getMovieByTitle("Toy Story"),
-      ];
-    }
-    const myJSON = JSON.stringify(usersMovies);
+  // &&&&&&&&
 
-    async function fetchMovieJSON(movie_list) {
-      var url = new URL("http://127.0.0.1:5000/helloworld");
-      var params = { movies: movie_list };
-      url.search = new URLSearchParams(params).toString();
+  let promise = Promise.resolve();
 
-      const response = await fetch(url);
+  // Container for holding rec movies for group.
+  let groups_movies = [];
 
-      const recomended_movies = await response.json();
-      return recomended_movies;
-    }
-    fetchMovieJSON(myJSON)
-      .then((movies) => {
-        for (let i = 0; i < movies.length; i++) {
-          groups_movies.push(movies[i]);
-        }
-      })
-      .then(() => {
-        // Sort groups_movies by most repeats
-        var map = groups_movies.reduce(function (p, c) {
-          p[c] = (p[c] || 0) + 1;
-          return p;
-        }, {});
+  // ----- LOOP 1: -----
+  members.forEach((member) => {
+    promise = promise.then(async () => {
+      // Defining members liked movies.
 
-        var groups_movies_sorted = Object.keys(map).sort(function (a, b) {
-          return map[b] - map[a];
-        });
-
-        // Create a new list and add the movie objects to it
-        final_grouped_movies_sorted = [];
-        for (let i = 0; i < groups_movies_sorted.length; i++) {
-          final_grouped_movies_sorted.push(
-            moviesStore.getMovieByTitle(groups_movies_sorted[i])
-          );
-        }
-        eventsStore.updateRecommendationsDatabase(
-          req.query.id,
-          final_grouped_movies_sorted
-        );
+      // NEW IDEA * GET THE USERS RECMOVIES INSTEAD
+      // We call FUNCTION 2 for each member -> Pushing results to "groups_movies" container.
+      const membersRecMovies = await fetchMovieJSON(member.id);
+      membersRecMovies.forEach((movie) => {
+        groups_movies.push(movie);
       });
-  }
-  res.send("Updated Events");
+    });
+  });
+
+  promise.then(() => {
+    console.log([...groups_movies]);
+    res.send([...groups_movies]);
+    //return groups_movies;
+  });
+
+  // &&&&&&&&
+
+  // Now we should have a list of all the members recommended movies i.e ->  groups_movies <-
+  // LETS RETURN THIS LIST FOR NOW....
+
+  //console.log(event_rec_movies);
+  //res.send(event_rec_movies);
 });
+
+// ************* FUNCTION 1 ***************
+
+// Argument: a 'LIST' of members in an event.
+// Returns: a 'LIST' of recommended movies for the members of the event.
+
+async function getRecommendations(arr) {}
+
+// *********************************************
+
+// ************* FUNCTION 2 ***************
+
+// Argument: a 'LIST' of liked movies of the member.
+// Returns: a 'LIST' of recommended movies for the member.
+
+async function fetchMovieJSON(userId) {
+  let usersMovies = usersStore.getMovies(userId);
+
+  // If user had not liked any movies yet:
+  if (usersMovies.length == 0) {
+    usersMovies = [
+      moviesStore.getMovieByTitle("Inception"),
+      moviesStore.getMovieByTitle("Toy Story"),
+    ];
+  }
+  const myJSON = JSON.stringify(usersMovies);
+
+  const movies = await getRecForUser(myJSON);
+
+  // Pick 6 random movies from the recommendation list
+  let get_these_movies = [];
+
+  const result = await pickSix(movies);
+
+  async function pickSix(movies_list) {
+    for (let i = 0; i < 6; i++) {
+      var random_index = Math.floor(Math.random() * movies_list.length);
+      var movie = movies_list[random_index];
+      movies_list.splice(random_index, 1);
+      get_these_movies.push(moviesStore.getMovieByTitle(movie));
+    }
+    return [...get_these_movies];
+  }
+  return result;
+}
+
+// ***************************************
+
+// ************* FUNCTION 3 ***************
+
+async function getRecForUser(movie_list) {
+  var url = new URL("http://127.0.0.1:5000/helloworld");
+  var params = { movies: movie_list };
+  url.search = new URLSearchParams(params).toString();
+
+  const response = await fetch(url);
+  const recomended_movies = await response.json();
+  return recomended_movies;
+}
+
+// ***************************************
 
 module.exports = router;

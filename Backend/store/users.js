@@ -78,6 +78,7 @@ const addUser = (user) => {
 };
 
 const getMovies = (userId) => {
+  console.log("USER ID ---------> " + userId);
   retrieveData();
   const user = getUserById(userId);
   return user.movies;
